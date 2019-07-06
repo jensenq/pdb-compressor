@@ -5,10 +5,10 @@ import sys
 
 def compress(fin, fout):
 	cLine = ""
-	lastLine = ""
+	lastLine = "+"
 	for line in fin:
 		cLine = compressName(line)
-		cLine = compressNamesBySection(cLine, lastLine)
+		#cLine = compressNamesBySection(cLine, lastLine)
 		lastLine = line
 
 		if(cLine):
@@ -17,7 +17,10 @@ def compress(fin, fout):
 
 def compressNamesBySection(cLine, lastLine):
 	if cLine[0] == lastLine[0]:
-		return  cLine[1:]
+		print(cLine[0])
+		return  cLine[2:]
+	else:
+		return cLine
 
 
 def compressName(line):
@@ -25,7 +28,6 @@ def compressName(line):
     and writes that index to the line instead"""
 
 	for name in names:
-		print( names[name] + line[6:])
 		if line[0:6] == name[0:6]:
 			return names[name] + line[6:]
 
