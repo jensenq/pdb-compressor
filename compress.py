@@ -1,26 +1,42 @@
 # Author: Quentin Jensen
-# http://www.wwpdb.org/documentation/file-format-content/format33/v3.3.html
+#
+# tricks:
+#	- shorten each name (columns 1-6)
+#	- only mention the name once, for each section
+#		(ie: if lines 1-2 are named "A", then lines 3-6 are named "B", only lines 1 and 3 are labeled)
+#	- in the ATOM section, many numbers are consecutive. shorten it to only the beginning and end
+#			
+# for reference: http://www.wwpdb.org/documentation/file-format-content/format33/v3.3.html
+#
 
 import sys
 
+
 def compress(fin, fout):
+	"""iterate through each line, calling functions to compress a line further"""
+
+	lastLine = "++"
+	currentName = ""
 	cLine = ""
-	lastLine = "+"
 	for line in fin:
+
 		cLine = compressName(line)
-		#cLine = compressNamesBySection(cLine, lastLine)
-		lastLine = line
+
+		#only keep the names that begin a new section
+		if cLine[0:4] == currentName:
+			cLine = cLine[4:]
+		else:
+			currentName = cLine[0:4]
+
+		#remove leading and trailing whitespace
+		cLine = cLine.strip() + "\n"
 
 		if(cLine):
 			fout.write(cLine)
+		
+		lastLine = cLine
 
 
-def compressNamesBySection(cLine, lastLine):
-	if cLine[0] == lastLine[0]:
-		print(cLine[0])
-		return  cLine[2:]
-	else:
-		return cLine
 
 
 def compressName(line):
@@ -29,7 +45,8 @@ def compressName(line):
 
 	for name in names:
 		if line[0:6] == name[0:6]:
-			return names[name] + line[6:]
+			#print(names[name] + line[6:])
+			return "<" + names[name] + ">" + line[6:]
 
 
 
@@ -73,9 +90,15 @@ names = {
 "CISPEP": "CI",
 "SITE  ": "SI",
 "CRYST1": "CR",
-"MTRIXn": "MT",
-"ORIGXn": "OR",
-"SCALEn": "SC",
+"MTRIX1": "M1",
+"MTRIX2": "M2",
+"MTRIX3": "M3",
+"ORIGX1": "O1",
+"ORIGX2": "O2",
+"ORIGX3": "O3",
+"SCALE1": "S1",
+"SCALE2": "S2",
+"SCALE3": "S3",
 "MODEL ": "ML",
 "ATOM  ": "AT",
 "ANISOU": "AN",
@@ -94,7 +117,8 @@ if __name__ == "__main__":
 	finName = "./pdbs/1HHP.pdb"
 	#prefix = finName.split('.')[0]
 	#foutName = prefix + ".cpdb"
-	foutName = finName + "c"
+	#foutName = finName + "c"
+	foutName = "tmp.cpdb"
 	
 	with open(finName, 'r') as fin:
 			with open(foutName, 'w') as fout:
